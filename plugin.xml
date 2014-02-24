@@ -44,6 +44,8 @@
         <source-file src="src/ios/BulkOperation.m" />
         <header-file src="src/ios/Photo.h" />
         <source-file src="src/ios/Photo.m" />
+        <header-file src="src/ios/DatabaseManager.h" />
+        <source-file src="src/ios/DatabaseManager.m" />
         <framework src="libsqlite3.dylib" />
     </platform>
 </plugin>

@@ -16,7 +16,7 @@
     BOOL _isFinished;
 }
 
--(id)initWithCustomer:(Photo*)p;
+-(id)initWithPhoto:(Photo*)p;
 
 @property (readonly) BOOL isExecuting;
 @property (readonly) BOOL isFinished;

@@ -9,10 +9,12 @@
 #import <Foundation/Foundation.h>
 
 @interface Photo : NSObject{
-    NSString *id_photo;
-    NSString *uri;
 }
 
--(id)initWithIdPhoto:(int)id_photo andUri:(NSString *)uri;
+-(id)initWithIdPhoto:(NSString*)id_photo andUri:(NSString *)uri;
+
+@property(nonatomic,strong) NSString *id_photo;
+@property(nonatomic,strong) NSString *uri;
+
 
 @end

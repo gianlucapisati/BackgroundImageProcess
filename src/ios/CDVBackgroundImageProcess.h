@@ -1,12 +1,14 @@
 //
 //  CDVBackgroundImageProcess.h
-//  
+//
 //
 //  Created by Gianluca Pisati on 21/01/14.
 //
 //
 
 #import <Cordova/CDV.h>
+#import "DatabaseManager.h"
+#import "BulkOperation.h"
 
 
 @interface CDVBackgroundImageProcess : CDVPlugin{
@@ -18,8 +20,8 @@
 - (void) backgroundimageprocess:(CDVInvokedUrlCommand *)command;
 
 #pragma mark - Util_Methods
-    - (void) uploadAllFiles;
+- (void) uploadAllFiles;
 
 
-    
+
 @end
