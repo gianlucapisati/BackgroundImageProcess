@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+           id="org.apache.cordova.backgroundimageprocess"
+      version="0.1.0">
+    <name>BackgroundImageProcess</name>
+    <description>BackgroundImageProcess Plugin</description>
+    <license>MIT</license>
+    <keywords>phonegap,background,upload,download</keywords>
+ 
+ 
+ 
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="BackgroundImageProcessPlugin">
+                <param name="android-package" value="org.apache.cordova.backgroundimageprocess.BackgroundImageProcessPlugin"/>
+            </feature>
+        </config-file>
+
+        <js-module src="www/BackgroundImageProcessPlugin.js" name="BackgroundImageProcessPlugin">
+            <clobbers target="window.backgroundimageprocess" />
+        </js-module>
+        <source-file src="src/android/BackgroundImageProcessPlugin.java" target-dir="src/org/apache/cordova/backgroundimageprocess" />   
+          
+     </platform>
+    
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="CDVBackgroundImageProcess">
+                <param name="ios-package" value="CDVBackgroundImageProcess" />
+            </feature>
+        </config-file>
+
+
+        <js-module src="www/ios/BackgroundImageProcessPlugin.js" name="CDVBackgroundImageProcess">
+            <clobbers target="window.backgroundimageprocess" />
+        </js-module>
+        
+        <header-file src="src/ios/CDVBackgroundImageProcess.h" />
+        <source-file src="src/ios/CDVBackgroundImageProcess.m" />
+        <header-file src="src/ios/BulkOperation.h" />
+        <source-file src="src/ios/BulkOperation.m" />
+        <header-file src="src/ios/Photo.h" />
+        <source-file src="src/ios/Photo.m" />
+        <framework src="libsqlite3.dylib" />
+    </platform>
+</plugin>
