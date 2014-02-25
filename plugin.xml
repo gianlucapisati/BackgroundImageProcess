@@ -28,7 +28,7 @@
     <!-- ios -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
-            <feature name="CDVBackgroundImageProcess">
+            <feature name="BackgroundImageProcess">
                 <param name="ios-package" value="CDVBackgroundImageProcess" />
             </feature>
         </config-file>

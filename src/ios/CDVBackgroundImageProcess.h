@@ -17,8 +17,7 @@
     NSMutableArray *_operationArray;
 }
 
-- (void) backgroundimageprocess:(CDVInvokedUrlCommand *)command;
-
+- (void)uploadPhotos:(CDVInvokedUrlCommand *)command;
 #pragma mark - Util_Methods
 - (void) uploadAllFiles;
 

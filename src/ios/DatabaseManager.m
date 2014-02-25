@@ -29,30 +29,15 @@ static NSString * _databasePath;
         BOOL success;
         
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSError *error;
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
-        NSString *writableDBPath = [documentsDirectory stringByAppendingPathComponent:@"PerfectStoreDatabase.sqlite"];
+        NSString *writableDBPath = [documentsDirectory stringByAppendingPathComponent:@"sw/wsw_db.db"];
         success = [fileManager fileExistsAtPath:writableDBPath];
-        
-        
-        // The writable database does not exist, so copy the default to the appropriate location.
-        NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"PerfectStoreDatabase.sqlite"];
-        
-        if (![fileManager fileExistsAtPath:writableDBPath]) {
-            success = [fileManager copyItemAtPath:defaultDBPath toPath:writableDBPath error:&error];
-        }
         
         _databasePath = [[NSString alloc] initWithString:writableDBPath];
         
     }
     return self;
-}
-
-+ (id)objectOrNilForKey:(id)aKey fromDictionary:(NSDictionary *)dict
-{
-    id object = [dict objectForKey:aKey];
-    return [object isEqual:[NSNull null]] ? nil : object;
 }
 
 + (NSString *)stringFromStatement:(sqlite3_stmt *)statement columnIndex:(int)columnIndex
@@ -71,7 +56,7 @@ static NSString * _databasePath;
     NSString *query = [NSString stringWithFormat:@"SELECT * FROM photo_to_send"];
     sqlite3_stmt *statement;
     NSMutableArray *photos = [NSMutableArray array];
-
+    
     if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
         if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
             
@@ -80,7 +65,7 @@ static NSString * _databasePath;
                 NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
                 NSString * uri      = [self stringFromStatement:statement columnIndex:1];
                 Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
-]
+                
                 [photos addObject:currentPhoto];
             }
             sqlite3_finalize(statement);
@@ -91,7 +76,7 @@ static NSString * _databasePath;
     else {
         NSLog(@"Error prepare = %s", sqlite3_errmsg(_database));
     }
-
+    
     return photos;
 }
 

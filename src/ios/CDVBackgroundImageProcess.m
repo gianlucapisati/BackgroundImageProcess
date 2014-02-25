@@ -11,7 +11,7 @@
 
 @implementation CDVBackgroundImageProcess
     
-- (void)backgroundimageprocess:(CDVInvokedUrlCommand *)command {
+- (void)uploadPhotos:(CDVInvokedUrlCommand *)command {
     // Retrieve the JavaScript-created date String from the CDVInvokedUrlCommand instance.
     // When we implement the JavaScript caller to this function, we'll see how we'll
     // pass an array (command.arguments), which will contain a single String.
@@ -35,10 +35,7 @@
     
 - (void)uploadAllFiles{
     _bulkSendArray = [DatabaseManager getPhotosForBulkUpload];
-    
-    UIWebView *webview = [[UIWebView alloc] init];
-    [webview stringByEvaluatingJavaScriptFromString:alert("chiamato")];
-    
+        
     _bulkQueue = [[NSOperationQueue alloc] init];
     _bulkQueue.name = @"bulkQueue";
     _bulkQueue.MaxConcurrentOperationCount = 2;

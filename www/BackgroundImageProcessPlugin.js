@@ -1,11 +1,8 @@
-var extractzip = {
-	unzip: function(file, success, fail){
-		cordova.exec(success, fail, "ExtractZipFilePlugin", "unzip", file);
+var backgroundimageprocess = {
+	backgroundimageprocess: function(success, fail){
+		cordova.exec(success, fail, "CDVBackgroundImageProcess", "backgroundimageprocess");
 	},
 
-	zip: function(folder, success, fail){
-		cordova.exec(success, fail, "CreateZipFilePlugin", "zip", folder);
-	}
 }
 
-module.exports = extractzip;
+module.exports = backgroundimageprocess;

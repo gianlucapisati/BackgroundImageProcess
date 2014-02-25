@@ -1,6 +1,6 @@
 var backgroundimageprocess = {
 	backgroundimageprocess: function(success, fail){
-		cordova.exec(success, fail, "CDVBackgroundImageProcess", "backgroundimageprocess");
+		cordova.exec(success, fail, "BackgroundImageProcess", "backgroundimageprocess",[]);
 	},
 
 }
