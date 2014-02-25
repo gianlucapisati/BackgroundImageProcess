@@ -6,10 +6,10 @@
 //  Copyright (c) 2013 Vidiemme. All rights reserved.
 //
 
-#import "BulkOperation.h"
+#import "BulkUploadOperation.h"
 #import "DatabaseManager.h"
 
-@implementation BulkOperation
+@implementation BulkUploadOperation
 
 -(id)initWithPhoto:(Photo*)p{
     self = [super init];
@@ -45,7 +45,7 @@
     
     NSData *imageData = UIImageJPEGRepresentation([UIImage imageWithContentsOfFile:self.photo.uri] , 90);
     
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@",@"http://www.server.com",self.photo.id_photo];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@",@"http://srvwsw2.vidiemme.lan:8080/serviceclient/ps/upload",self.photo.id_photo];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     [request setURL:[NSURL URLWithString:urlString]];
@@ -57,7 +57,7 @@
     
     NSMutableData *body = [NSMutableData data];
     [body appendData:[[NSString stringWithFormat:@"rn--%@rn",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[@"Content-Disposition: form-data; name=\"photo\"; filename=\"photo.jpg\"rn" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"photo.jpg\"rn",self.photo.id_photo] dataUsingEncoding:NSUTF8StringEncoding]];
     [body appendData:[@"Content-Type: application/octet-streamrnrn" dataUsingEncoding:NSUTF8StringEncoding]];
     [body appendData:[NSData dataWithData:imageData]];
     [body appendData:[[NSString stringWithFormat:@"rn--%@--rn",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
@@ -80,6 +80,9 @@
     _isFinished = YES;
     
     [DatabaseManager deletePhotoWithId:id_photo];
+    
+    UIWebView *webview = [[UIWebView alloc] init];
+    [webview stringByEvaluatingJavaScriptFromString:@"console.log('new upload completed')"];
     
     [self didChangeValueForKey:@"isExecuting"];
     [self didChangeValueForKey:@"isFinished"];

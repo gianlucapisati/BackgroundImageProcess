@@ -17,5 +17,6 @@
 + (DatabaseManager *)sharedDatabase;
 
 +(NSArray*)getPhotosForBulkUpload;
++(NSArray*)getPhotosForBulkDownload;
 +(void)deletePhotoWithId:(NSString*)id_photo;
 @end

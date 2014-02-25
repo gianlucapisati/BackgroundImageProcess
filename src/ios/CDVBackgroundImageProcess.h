@@ -8,18 +8,23 @@
 
 #import <Cordova/CDV.h>
 #import "DatabaseManager.h"
-#import "BulkOperation.h"
+#import "BulkUploadOperation.h"
+#import "BulkDownloadOperation.h"
 
 
 @interface CDVBackgroundImageProcess : CDVPlugin{
     NSArray *_bulkSendArray;
-    NSOperationQueue *_bulkQueue;
+    NSArray *_bulkDownloadArray;
+    NSOperationQueue *_bulkUploadQueue;
+    NSOperationQueue *_bulkDownloadQueue;
     NSMutableArray *_operationArray;
 }
 
 - (void)uploadPhotos:(CDVInvokedUrlCommand *)command;
+- (void)downloadPhotos:(CDVInvokedUrlCommand *)command;
 #pragma mark - Util_Methods
 - (void) uploadAllFiles;
+- (void) downloadAllFiles;
 
 
 

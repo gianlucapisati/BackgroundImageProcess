@@ -80,6 +80,34 @@ static NSString * _databasePath;
     return photos;
 }
 
++(NSArray*)getPhotosForBulkDownload{
+    NSString *query = [NSString stringWithFormat:@"SELECT question_path FROM qualitative_survey_questions UNION SELECT guid FROM pos_logo"];
+    sqlite3_stmt *statement;
+    NSMutableArray *photos = [NSMutableArray array];
+    
+    if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
+        if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
+            
+            while (sqlite3_step(statement) == SQLITE_ROW)
+            {
+                NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
+                NSString * uri      = @"";
+                Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
+                
+                [photos addObject:currentPhoto];
+            }
+            sqlite3_finalize(statement);
+        }
+        
+        sqlite3_close(_database);
+    }
+    else {
+        NSLog(@"Error prepare = %s", sqlite3_errmsg(_database));
+    }
+    
+    return photos;
+}
+
 
 +(void)deletePhotoWithId:(NSString*)id_photo{
     NSString *query = [NSString stringWithFormat:@"DELETE FROM photo_to_send WHERE id_photo = %@",id_photo];

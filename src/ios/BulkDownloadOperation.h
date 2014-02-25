@@ -10,7 +10,7 @@
 
 #import "Photo.h"
 
-@interface BulkOperation : NSOperation{
+@interface BulkDownloadOperation : NSOperation{
     int _kind;
     BOOL _isExecuting;
     BOOL _isFinished;
