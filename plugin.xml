@@ -40,8 +40,10 @@
         
         <header-file src="src/ios/CDVBackgroundImageProcess.h" />
         <source-file src="src/ios/CDVBackgroundImageProcess.m" />
-        <header-file src="src/ios/BulkOperation.h" />
-        <source-file src="src/ios/BulkOperation.m" />
+        <header-file src="src/ios/BulkUploadOperation.h" />
+        <source-file src="src/ios/BulkUploadOperation.m" />
+        <header-file src="src/ios/BulkDownloadOperation.h" />
+        <source-file src="src/ios/BulkDownloadOperation.m" />
         <header-file src="src/ios/Photo.h" />
         <source-file src="src/ios/Photo.m" />
         <header-file src="src/ios/DatabaseManager.h" />
