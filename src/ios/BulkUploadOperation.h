@@ -18,6 +18,10 @@
 
 -(id)initWithPhoto:(Photo*)p;
 
+@property (nonatomic, strong) NSString *username;
+@property (nonatomic, strong) NSString *token;
+@property (nonatomic, strong) NSString *baseURL;
+
 @property (readonly) BOOL isExecuting;
 @property (readonly) BOOL isFinished;
 

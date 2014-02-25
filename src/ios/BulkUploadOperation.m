@@ -45,7 +45,7 @@
     
     NSData *imageData = UIImageJPEGRepresentation([UIImage imageWithContentsOfFile:self.photo.uri] , 90);
     
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@",@"http://srvwsw2.vidiemme.lan:8080/serviceclient/ps/upload",self.photo.id_photo];
+    NSString *urlString = [NSString stringWithFormat:@"%@services/ps/upload/%@",self.baseURL,self.photo.id_photo];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     [request setURL:[NSURL URLWithString:urlString]];
@@ -54,6 +54,8 @@
     NSString *boundary = @"---------------------------14737809831466499882746641449";
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
     [request addValue:contentType forHTTPHeaderField: @"Content-Type"];
+    NSString *authCredentials = [NSString stringWithFormat:@"%@:%@", self.username, self.token];
+    [request setValue:authCredentials forHTTPHeaderField:@"Authorization"];
     
     NSMutableData *body = [NSMutableData data];
     [body appendData:[[NSString stringWithFormat:@"rn--%@rn",boundary] dataUsingEncoding:NSUTF8StringEncoding]];

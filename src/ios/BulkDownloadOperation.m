@@ -50,17 +50,33 @@
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:image];
     
     if(fileExists){
-        [self finish];
+        [self finishWithStatus:2];
     }else{
-        NSString *localFilePath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"sw/www/img/%@.jpg",self.photo.id_photo]];
-        NSData *thedata = [NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://srvwsw2.vidiemme.lan:8080/serviceclient/ps/download/%@",self.photo.id_photo]]];
-        [thedata writeToFile:localFilePath atomically:YES];
         
-        [self finish];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@services/ps/download/%@",self.baseURL,self.photo.id_photo]]];
+        
+        NSString *authCredentials = [NSString stringWithFormat:@"%@:%@", self.username, self.token];
+        [request setValue:authCredentials forHTTPHeaderField:@"Authorization"];
+        [NSURLConnection sendAsynchronousRequest:request
+                                           queue:[NSOperationQueue mainQueue]
+                               completionHandler:^(NSURLResponse * response,
+                                                   NSData * data,
+                                                   NSError * error) {
+                                   if (!error){
+                                       NSString *localFilePath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"sw/www/img/%@.jpg",self.photo.id_photo]];
+                                       [data writeToFile:localFilePath atomically:YES];
+                                       
+                                       [self finishWithStatus:1];
+                                   } else {
+                                       NSLog(@"ERRORE: %@", error);
+                                       [self finishWithStatus:0];
+                                   }
+                                   
+                               }];
     }
 }
 
-- (void)finish
+- (void)finishWithStatus:(int)status
 {
     [self willChangeValueForKey:@"isExecuting"];
     [self willChangeValueForKey:@"isFinished"];
@@ -69,7 +85,13 @@
     _isFinished = YES;
     
     UIWebView *webview = [[UIWebView alloc] init];
-    [webview stringByEvaluatingJavaScriptFromString:@"console.log('new download completed')"];
+    
+    if(status == 1)
+        [webview stringByEvaluatingJavaScriptFromString:@"console.log('new download completed')"];
+    else if(status == 0)
+        [webview stringByEvaluatingJavaScriptFromString:@"console.log('download error')"];
+    else if(status == 2)
+        [webview stringByEvaluatingJavaScriptFromString:@"console.log('file alreay present')"];
     
     [self didChangeValueForKey:@"isExecuting"];
     [self didChangeValueForKey:@"isFinished"];
