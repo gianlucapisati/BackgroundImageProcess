@@ -1,0 +1,95 @@
+package org.apache.cordova.upload;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.BlockingQueue;
+
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.download.Image;
+import org.json.JSONArray;
+
+public class UploadConsumer extends Thread {
+
+	BlockingQueue<Image> queue;
+	JSONArray args;
+	CordovaWebView webView;
+
+	public UploadConsumer(BlockingQueue<Image> queue, JSONArray args,
+			CordovaWebView webView) {
+		this.queue = queue;
+		this.args = args;
+		this.webView = webView;
+	}
+
+	public void run() {
+		HttpURLConnection conn = null;
+		DataOutputStream dos = null;
+		String lineEnd = "\r\n";
+		String twoHyphens = "--";
+		String boundary = "*****";
+		byte[] buffer;
+		int bytesRead, bytesAvailable, bufferSize;
+		int serverResponseCode = 0;
+		int maxBufferSize = 1 * 1024 * 1024;
+		
+		this.webView.loadUrl("javascript:SW.Renderer.handleProgress(100,0,'upload')");
+		
+		try {
+			while (true) {
+				Image img = this.queue.take();
+				String filename = img.getPath();
+				File sourceFile = new File(filename);
+				FileInputStream fileInputStream = new FileInputStream(sourceFile);
+				URL url = new URL(this.args.getString(2)+"services/ps/upload/"+img.getIdPhoto());
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setDoInput(true);
+				conn.setDoOutput(true);
+				conn.setUseCaches(false);
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty("Connection", "Keep-Alive");
+				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+				conn.setRequestProperty("Content-Type","multipart/form-data;boundary=" + boundary);
+				conn.setRequestProperty("uploaded_file", filename);
+
+				dos = new DataOutputStream(conn.getOutputStream());
+				dos.writeBytes(twoHyphens + boundary + lineEnd);
+				dos.writeBytes("Content-Disposition: form-data; name="+ filename + ";filename=" + filename + lineEnd);
+				dos.writeBytes(lineEnd);
+
+				bytesAvailable = fileInputStream.available();
+
+				bufferSize = Math.min(bytesAvailable, maxBufferSize);
+				buffer = new byte[bufferSize];
+
+				bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+				while (bytesRead > 0) {
+					dos.write(buffer, 0, bufferSize);
+					bytesAvailable = fileInputStream.available();
+					bufferSize = Math.min(bytesAvailable, maxBufferSize);
+					bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+				}
+
+				dos.writeBytes(lineEnd);
+				dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+				
+				serverResponseCode = conn.getResponseCode();
+				String serverResponseMessage = conn.getResponseMessage();
+
+				System.out.println("uploadFile - HTTP Response is : "+ serverResponseMessage + ": " + serverResponseCode);
+
+				fileInputStream.close();
+				dos.flush();
+				dos.close();
+				
+				this.webView.loadUrl("javascript:SW.Renderer.handleProgress("+img.getTotal()+","+img.getCount()+",'upload')");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

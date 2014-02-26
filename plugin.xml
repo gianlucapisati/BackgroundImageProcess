@@ -13,15 +13,28 @@
     <!-- android -->
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="BackgroundImageProcessPlugin">
-                <param name="android-package" value="org.apache.cordova.backgroundimageprocess.BackgroundImageProcessPlugin"/>
+            <feature name="UploadFile">
+                <param name="android-package" value="org.apache.cordova.upload.UploadFile"/>
+            </feature>
+        </config-file>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="DownloadFile">
+                <param name="android-package" value="org.apache.cordova.download.DownloadFile"/>
             </feature>
         </config-file>
 
-        <js-module src="www/BackgroundImageProcessPlugin.js" name="BackgroundImageProcessPlugin">
+        <js-module src="www/android/BackgroundImageProcessPlugin.js" name="BackgroundImageProcessPlugin">
             <clobbers target="window.backgroundimageprocess" />
         </js-module>
-        <source-file src="src/android/BackgroundImageProcessPlugin.java" target-dir="src/org/apache/cordova/backgroundimageprocess" />   
+        
+        <source-file src="src/android/download/DownloadFile.java" target-dir="src/org/apache/cordova/download" />  
+        <source-file src="src/android/download/DownloadConsumer.java" target-dir="src/org/apache/cordova/download" />  
+        <source-file src="src/android/download/DownloadProducer.java" target-dir="src/org/apache/cordova/download" />  
+        <source-file src="src/android/download/Image.java" target-dir="src/org/apache/cordova/download" /> 
+
+        <source-file src="src/android/upload/UploadFile.java" target-dir="src/org/apache/cordova/upload" />  
+        <source-file src="src/android/upload/UploadConsumer.java" target-dir="src/org/apache/cordova/upload" />  
+        <source-file src="src/android/upload/UploadProducer.java" target-dir="src/org/apache/cordova/upload" />  
           
      </platform>
     
