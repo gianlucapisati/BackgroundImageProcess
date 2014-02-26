@@ -21,6 +21,9 @@
 @property (nonatomic, strong) NSString *username;
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *baseURL;
+@property (nonatomic, strong) UIWebView *webview;
+@property (nonatomic) int current;
+@property (nonatomic) int total;
 
 @property (readonly) BOOL isExecuting;
 @property (readonly) BOOL isFinished;

@@ -83,8 +83,7 @@
     
     [DatabaseManager deletePhotoWithId:id_photo];
     
-    UIWebView *webview = [[UIWebView alloc] init];
-    [webview stringByEvaluatingJavaScriptFromString:@"console.log('new upload completed')"];
+    [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'upload')",self.total,self.current]];
     
     [self didChangeValueForKey:@"isExecuting"];
     [self didChangeValueForKey:@"isFinished"];

@@ -8,6 +8,7 @@
 
 #import "BulkDownloadOperation.h"
 #import "DatabaseManager.h"
+#import <Cordova/CDV.h>
 
 @implementation BulkDownloadOperation
 
@@ -36,6 +37,7 @@
         [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
         return;
     }
+    
     
     [self willChangeValueForKey:@"isExecuting"];
     _isExecuting = YES;
@@ -84,14 +86,12 @@
     _isExecuting = NO;
     _isFinished = YES;
     
-    UIWebView *webview = [[UIWebView alloc] init];
-    
-    if(status == 1)
-        [webview stringByEvaluatingJavaScriptFromString:@"console.log('new download completed')"];
+    if(status == 1 || status == 2){
+        [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'download')",self.total,self.current]];
+    }
     else if(status == 0)
-        [webview stringByEvaluatingJavaScriptFromString:@"console.log('download error')"];
-    else if(status == 2)
-        [webview stringByEvaluatingJavaScriptFromString:@"console.log('file alreay present')"];
+        [self.webview stringByEvaluatingJavaScriptFromString:@"console.log('download error')"];
+    
     
     [self didChangeValueForKey:@"isExecuting"];
     [self didChangeValueForKey:@"isFinished"];

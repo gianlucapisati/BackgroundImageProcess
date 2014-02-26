@@ -63,17 +63,24 @@
 
 - (void)uploadAllFilesWithUsername:(NSString *) username andToken:(NSString*) token andBaseURL:(NSString*) baseURL{
     _bulkSendArray = [DatabaseManager getPhotosForBulkUpload];
-    
+    if([_bulkSendArray count]>0){
+        [self writeJavascript:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,0,'upload')",[_bulkSendArray count]]];
+    }
     _bulkUploadQueue = [[NSOperationQueue alloc] init];
     _bulkUploadQueue.name = @"bulkQueue";
-    _bulkUploadQueue.MaxConcurrentOperationCount = 2;
+    _bulkUploadQueue.MaxConcurrentOperationCount = 1;
+    int count = 0;
     
     for(Photo *p in _bulkSendArray){
         BulkUploadOperation *newOperation = [[BulkUploadOperation alloc] initWithPhoto:p];
         newOperation.username = username;
         newOperation.token = token;
         newOperation.baseURL = baseURL;
+        newOperation.total = [_bulkSendArray count];
+        newOperation.current = count;
+        newOperation.webview = self.webView;
         [_bulkUploadQueue addOperation:newOperation];
+        count++;
     }
     [_bulkUploadQueue addObserver:self forKeyPath:@"bulkUploadOperations" options:0 context:NULL];
 }
@@ -81,17 +88,25 @@
 
 - (void)downloadAllFilesWithUsername:(NSString *) username andToken:(NSString*) token andBaseURL:(NSString*) baseURL{
     _bulkDownloadArray = [DatabaseManager getPhotosForBulkDownload];
+    if([_bulkDownloadArray count]>0){
+        [self writeJavascript:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,0,'download')",[_bulkDownloadArray count]]];
+    }
     
     _bulkDownloadQueue = [[NSOperationQueue alloc] init];
     _bulkDownloadQueue.name = @"bulkQueue";
-    _bulkDownloadQueue.MaxConcurrentOperationCount = 2;
-    
+    _bulkDownloadQueue.MaxConcurrentOperationCount = 1;
+    int count = 0;
     for(Photo *p in _bulkDownloadArray){
         BulkDownloadOperation *newOperation = [[BulkDownloadOperation alloc] initWithPhoto:p];
         newOperation.username = username;
         newOperation.token = token;
         newOperation.baseURL = baseURL;
+        newOperation.total = [_bulkDownloadArray count];
+        newOperation.current = count;
+        newOperation.webview = self.webView;
         [_bulkDownloadQueue addOperation:newOperation];
+        
+        count++;
     }
     [_bulkDownloadQueue addObserver:self forKeyPath:@"bulkDownloadOperations" options:0 context:NULL];
 }
@@ -101,12 +116,12 @@
     if (object == _bulkUploadQueue && [keyPath isEqualToString:@"bulkUploadOperations"]) {
         if ([_bulkUploadQueue.operations count] == 0) {
             UIWebView *webview = [[UIWebView alloc] init];
-            [webview stringByEvaluatingJavaScriptFromString:@"alert('upload completed')"];
+            [webview stringByEvaluatingJavaScriptFromString:@"console.log('upload completed')"];
         }
     }else if(object == _bulkDownloadQueue && [keyPath isEqualToString:@"bulkDownloadOperations"]){
         if ([_bulkDownloadQueue.operations count] == 0) {
             UIWebView *webview = [[UIWebView alloc] init];
-            [webview stringByEvaluatingJavaScriptFromString:@"alert('download completed')"];
+            [webview stringByEvaluatingJavaScriptFromString:@"console.log('download completed')"];
         }
     }else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
