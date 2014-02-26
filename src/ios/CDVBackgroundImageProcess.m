@@ -95,7 +95,7 @@
     _bulkDownloadQueue = [[NSOperationQueue alloc] init];
     _bulkDownloadQueue.name = @"bulkQueue";
     _bulkDownloadQueue.MaxConcurrentOperationCount = 1;
-    int count = 0;
+    int count = 1;
     for(Photo *p in _bulkDownloadArray){
         BulkDownloadOperation *newOperation = [[BulkDownloadOperation alloc] initWithPhoto:p];
         newOperation.username = username;
