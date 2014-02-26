@@ -27,7 +27,12 @@ public class DownloadConsumer extends Thread {
 	}
 	
 	public void run() {
-		this.webView.loadUrl("javascript:SW.Renderer.handleProgress(100,0,'download')");
+		final DownloadConsumer myself = this;
+		this.cordova.getActivity().runOnUiThread(new Runnable() {
+			public void run() {
+				myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'download')");
+			}
+		});
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 	        httpClient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
@@ -49,7 +54,12 @@ public class DownloadConsumer extends Thread {
 			        fos.close();
 			        is.close();			     
 				}
-			    this.webView.loadUrl("javascript:SW.Renderer.handleProgress("+img.getTotal()+","+img.getCount()+",'download')");
+			    final Image myImg = img;
+				this.cordova.getActivity().runOnUiThread(new Runnable() {
+					public void run() {
+						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myImg.getTotal()+","+myImg.getCount()+",'download')");
+					}
+				});
 			}			
 		} catch(Exception e) {
 			e.printStackTrace();

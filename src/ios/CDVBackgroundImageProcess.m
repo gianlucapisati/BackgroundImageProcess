@@ -69,7 +69,7 @@
     _bulkUploadQueue = [[NSOperationQueue alloc] init];
     _bulkUploadQueue.name = @"bulkQueue";
     _bulkUploadQueue.MaxConcurrentOperationCount = 1;
-    int count = 0;
+    int count = 1;
     
     for(Photo *p in _bulkSendArray){
         BulkUploadOperation *newOperation = [[BulkUploadOperation alloc] initWithPhoto:p];

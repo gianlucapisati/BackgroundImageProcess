@@ -35,8 +35,12 @@ public class UploadConsumer extends Thread {
 		int serverResponseCode = 0;
 		int maxBufferSize = 1 * 1024 * 1024;
 		
-		this.webView.loadUrl("javascript:SW.Renderer.handleProgress(100,0,'upload')");
-		
+		final Image myImg = img;
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'upload')");
+            }
+        });
 		try {
 			while (true) {
 				Image img = this.queue.take();
@@ -84,8 +88,17 @@ public class UploadConsumer extends Thread {
 				fileInputStream.close();
 				dos.flush();
 				dos.close();
+                
+                File dbfile = new File(Environment.getExternalStorageDirectory()+File.separator+"sw/wsw_db.db");
+                SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
+                mydb.delete("photo_to_send", "id_photo = ?", new String[]{img.getIdPhoto()});
 				
-				this.webView.loadUrl("javascript:SW.Renderer.handleProgress("+img.getTotal()+","+img.getCount()+",'upload')");
+				final Image myImg = img;
+				this.cordova.getActivity().runOnUiThread(new Runnable() {
+					public void run() {
+						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myImg.getTotal()+","+myImg.getCount()+",'upload')");
+					}
+				});
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
