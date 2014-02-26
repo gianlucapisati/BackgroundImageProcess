@@ -15,7 +15,7 @@ public class UploadFile extends CordovaPlugin {
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if ("upload".equals(action)) {
             BlockingQueue<Image> queue = new LinkedBlockingQueue<Image>();
-            UploadConsumer dc = new UploadConsumer(queue, args, this.webView);
+            UploadConsumer dc = new UploadConsumer(queue, args, this.webView, this.cordova);
             dc.start();
             UploadProducer dp = new UploadProducer(queue);
             dp.start();

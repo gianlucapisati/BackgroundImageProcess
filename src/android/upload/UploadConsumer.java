@@ -7,23 +7,31 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.download.DownloadConsumer;
 import org.apache.cordova.download.Image;
 import org.json.JSONArray;
 
-public class UploadConsumer extends Thread {
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
+public class UploadConsumer extends Thread {
+    
 	BlockingQueue<Image> queue;
 	JSONArray args;
+	CordovaInterface cordova;
 	CordovaWebView webView;
-
+    
 	public UploadConsumer(BlockingQueue<Image> queue, JSONArray args,
-			CordovaWebView webView) {
+                          CordovaWebView webView, CordovaInterface cordova
+                          ) {
 		this.queue = queue;
 		this.args = args;
 		this.webView = webView;
+		this.cordova = cordova;
 	}
-
+    
 	public void run() {
 		HttpURLConnection conn = null;
 		DataOutputStream dos = null;
@@ -35,7 +43,7 @@ public class UploadConsumer extends Thread {
 		int serverResponseCode = 0;
 		int maxBufferSize = 1 * 1024 * 1024;
 		
-		final Image myImg = img;
+		final UploadConsumer myself = this;
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'upload')");
@@ -57,34 +65,34 @@ public class UploadConsumer extends Thread {
 				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
 				conn.setRequestProperty("Content-Type","multipart/form-data;boundary=" + boundary);
 				conn.setRequestProperty("uploaded_file", filename);
-
+                
 				dos = new DataOutputStream(conn.getOutputStream());
 				dos.writeBytes(twoHyphens + boundary + lineEnd);
 				dos.writeBytes("Content-Disposition: form-data; name="+ filename + ";filename=" + filename + lineEnd);
 				dos.writeBytes(lineEnd);
-
+                
 				bytesAvailable = fileInputStream.available();
-
+                
 				bufferSize = Math.min(bytesAvailable, maxBufferSize);
 				buffer = new byte[bufferSize];
-
+                
 				bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
+                
 				while (bytesRead > 0) {
 					dos.write(buffer, 0, bufferSize);
 					bytesAvailable = fileInputStream.available();
 					bufferSize = Math.min(bytesAvailable, maxBufferSize);
 					bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 				}
-
+                
 				dos.writeBytes(lineEnd);
 				dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 				
 				serverResponseCode = conn.getResponseCode();
 				String serverResponseMessage = conn.getResponseMessage();
-
+                
 				System.out.println("uploadFile - HTTP Response is : "+ serverResponseMessage + ": " + serverResponseCode);
-
+                
 				fileInputStream.close();
 				dos.flush();
 				dos.close();
@@ -104,5 +112,5 @@ public class UploadConsumer extends Thread {
 			e.printStackTrace();
 		}
 	}
-
+    
 }
