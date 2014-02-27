@@ -14,13 +14,13 @@ public class DownloadFile extends CordovaPlugin {
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		if ("download".equals(action)) {
 			BlockingQueue<Image> queue = new LinkedBlockingQueue<Image>();
-			DownloadConsumer dc = new DownloadConsumer(queue, args, this.webView);
+			DownloadConsumer dc = new DownloadConsumer(queue, args, this.webView, this.cordova);
 			dc.start();
 			DownloadProducer dp = new DownloadProducer(queue);
 			dp.start();
 			return true;
 		}
 		return false;
-	}	
+	}
 	
 }

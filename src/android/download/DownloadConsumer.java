@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -13,17 +14,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.json.JSONArray;
+import org.pgsqlite.SQLitePlugin;
+
+import android.os.Environment;
 
 public class DownloadConsumer extends Thread {
-
+    
 	BlockingQueue<Image> queue;
 	JSONArray args;
+	CordovaInterface cordova;
 	CordovaWebView webView;
-
-	public DownloadConsumer(BlockingQueue<Image> queue, JSONArray args, CordovaWebView webView) {
+    
+	public DownloadConsumer(BlockingQueue<Image> queue, JSONArray args, CordovaWebView webView,CordovaInterface cordova) {
 		this.queue = queue;
 		this.args = args;
 		this.webView = webView;
+		this.cordova = cordova;
 	}
 	
 	public void run() {
@@ -36,9 +42,10 @@ public class DownloadConsumer extends Thread {
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 	        httpClient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+            
 			while(true) {
 				Image img = this.queue.take();
-				File file = new File(args.getString(3)+"/"+img.getPath());
+				File file = new File(Environment.getExternalStorageDirectory()+"/sw/www/img/"+img.getPath()+".jpg");
 				if (!file.exists()) {
 					String url = this.args.getString(2)+"services/ps/download/"+img.getPath();
 					HttpGet httpGet = new HttpGet(url);
@@ -52,18 +59,19 @@ public class DownloadConsumer extends Thread {
 			        	fos.write(buffer, 0, ln);
 			        }
 			        fos.close();
-			        is.close();			     
+			        is.close();
 				}
-			    final Image myImg = img;
+				
+				final Image myImg = img;
 				this.cordova.getActivity().runOnUiThread(new Runnable() {
 					public void run() {
 						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myImg.getTotal()+","+myImg.getCount()+",'download')");
 					}
 				});
-			}			
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+    
 }
