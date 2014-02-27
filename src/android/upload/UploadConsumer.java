@@ -53,6 +53,7 @@ public class UploadConsumer extends Thread {
 			while (true) {
 				Image img = this.queue.take();
 				String filename = img.getPath();
+				filename = filename.substring(7);
 				File sourceFile = new File(filename);
 				FileInputStream fileInputStream = new FileInputStream(sourceFile);
 				URL url = new URL(this.args.getString(2)+"services/ps/upload/"+img.getIdPhoto());
