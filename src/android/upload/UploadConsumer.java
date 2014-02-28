@@ -50,7 +50,7 @@ public class UploadConsumer extends Thread {
             }
         });
 		try {
-			while (true) {
+			while(true) {
 				Image img = this.queue.take();
 				String filename = img.getPath();
 				filename = filename.substring(7);
@@ -66,10 +66,11 @@ public class UploadConsumer extends Thread {
 				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
 				conn.setRequestProperty("Content-Type","multipart/form-data;boundary=" + boundary);
 				conn.setRequestProperty("uploaded_file", filename);
+				conn.setRequestProperty("Authorization", args.getString(0)+":"+args.getString(1));
                 
 				dos = new DataOutputStream(conn.getOutputStream());
 				dos.writeBytes(twoHyphens + boundary + lineEnd);
-				dos.writeBytes("Content-Disposition: form-data; name="+ filename + ";filename=" + filename + lineEnd);
+				dos.writeBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"image\"" + lineEnd);
 				dos.writeBytes(lineEnd);
                 
 				bytesAvailable = fileInputStream.available();
