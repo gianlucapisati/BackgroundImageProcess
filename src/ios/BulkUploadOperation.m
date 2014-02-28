@@ -1,131 +1,96 @@
+
+
 //
-//  DatabaseManager.m
+//  BulkOperation.m
 //  PerfectStore
 //
-//  Created by matteo petrioli on 19/02/13.
+//  Created by Gianluca Pisati on 18/11/13.
 //  Copyright (c) 2013 Vidiemme. All rights reserved.
 //
 
+#import "BulkUploadOperation.h"
 #import "DatabaseManager.h"
 
-static DatabaseManager * _databaseManager;
-static sqlite3 * _database;
-static NSString * _databasePath;
+@implementation BulkUploadOperation
 
-@implementation DatabaseManager
-
-+ (DatabaseManager *)sharedDatabase
-{
-    if (_databaseManager == nil) {
-        _databaseManager = [[DatabaseManager alloc] init];
+-(id)initWithPhoto:(Photo*)p{
+    self = [super init];
+    if (self)
+    {
+        self.photo = p;
+        
+        _isExecuting = NO;
+        _isFinished = NO;
     }
-    return _databaseManager;
-}
-
-- (id)init
-{
-    if ((self = [super init])) {
-        
-        BOOL success;
-        
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths objectAtIndex:0];
-        NSString *writableDBPath = [documentsDirectory stringByAppendingPathComponent:@"sw/wsw_db.db"];
-        success = [fileManager fileExistsAtPath:writableDBPath];
-        
-        _databasePath = [[NSString alloc] initWithString:writableDBPath];
-        
-    }
+    
     return self;
 }
 
-+ (NSString *)stringFromStatement:(sqlite3_stmt *)statement columnIndex:(int)columnIndex
+- (BOOL)isConcurrent
 {
-    char * string = (char*)sqlite3_column_text(statement, columnIndex);
-    if (string) {
-        NSString * nsstring = [[NSString alloc] initWithUTF8String:string];
-        return nsstring;
+    return YES;
+}
+
+- (void)start {
+    
+    if (![NSThread isMainThread])
+    {
+        [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
+        return;
     }
-    else{
-        return @"";
+    
+    
+    [self willChangeValueForKey:@"isExecuting"];
+    _isExecuting = YES;
+    [self didChangeValueForKey:@"isExecuting"];
+    NSLog(@"id foto %@",self.photo.id_photo);
+    
+    NSString *tmp = [self.photo.uri substringFromIndex:16];
+    UIImage* tmpimage = [UIImage imageWithContentsOfFile:tmp];
+    NSData *imageData = UIImageJPEGRepresentation(tmpimage , 90);
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@services/ps/upload/%@",self.baseURL,self.photo.id_photo];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:urlString]];
+    [request setHTTPMethod:@"POST"];
+    
+    NSString *boundary = @"---------------------------14737809831466499882746641449";
+    NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
+    [request addValue:contentType forHTTPHeaderField: @"Content-Type"];
+    NSString *authCredentials = [NSString stringWithFormat:@"%@:%@", self.username, self.token];
+    [request setValue:authCredentials forHTTPHeaderField:@"Authorization"];
+    
+    NSMutableData *body = [NSMutableData data];
+    [body appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"photo\"; filename=\"image.jpg\"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[NSData dataWithData:imageData]];
+    [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setHTTPBody:body];
+    
+    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+    NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
+    
+    if(returnString){
+        [self finish:self.photo.id_photo];
     }
 }
 
-+(NSArray*)getPhotosForBulkUpload{
-    NSString *query = [NSString stringWithFormat:@"SELECT * FROM photo_to_send"];
-    sqlite3_stmt *statement;
-    NSMutableArray *photos = [NSMutableArray array];
+- (void)finish:(NSString*)id_photo
+{
+    [self willChangeValueForKey:@"isExecuting"];
+    [self willChangeValueForKey:@"isFinished"];
     
-    if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
-        if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
-            
-            while (sqlite3_step(statement) == SQLITE_ROW)
-            {
-                NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
-                NSString * uri      = [self stringFromStatement:statement columnIndex:1];
-                Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
-                
-                [photos addObject:currentPhoto];
-            }
-            sqlite3_finalize(statement);
-        }
-        
-        sqlite3_close(_database);
-    }
-    else {
-        NSLog(@"Error prepare = %s", sqlite3_errmsg(_database));
-    }
+    _isExecuting = NO;
+    _isFinished = YES;
     
-    return photos;
+    [DatabaseManager deletePhotoWithId:id_photo];
+    
+    [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'upload')",self.total,self.current]];
+    
+    [self didChangeValueForKey:@"isExecuting"];
+    [self didChangeValueForKey:@"isFinished"];
 }
-
-+(NSArray*)getPhotosForBulkDownload{
-    NSString *query = [NSString stringWithFormat:@"SELECT question_path FROM qualitative_survey_questions UNION SELECT guid FROM pos_logo"];
-    sqlite3_stmt *statement;
-    NSMutableArray *photos = [NSMutableArray array];
-    
-    if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
-        if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
-            
-            while (sqlite3_step(statement) == SQLITE_ROW)
-            {
-                NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
-                NSString * uri      = @"";
-                Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
-                
-                [photos addObject:currentPhoto];
-            }
-            sqlite3_finalize(statement);
-        }
-        
-        sqlite3_close(_database);
-    }
-    else {
-        NSLog(@"Error prepare = %s", sqlite3_errmsg(_database));
-    }
-    
-    return photos;
-}
-
-
-+(void)deletePhotoWithId:(NSString*)id_photo{
-    NSString *query = [NSString stringWithFormat:@"DELETE FROM photo_to_send WHERE id_photo = '%@'",id_photo];
-    sqlite3_stmt *statement;
-    
-    if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
-        if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
-            sqlite3_step(statement);
-            sqlite3_finalize(statement);
-        }
-        else {
-            NSLog(@"Error prepare delete photo_to_send Table= %s", sqlite3_errmsg(_database));
-        }
-        
-        sqlite3_close(_database);
-    }
-}
-
-
 
 @end
