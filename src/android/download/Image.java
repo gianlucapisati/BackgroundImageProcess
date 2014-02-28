@@ -32,5 +32,5 @@ public class Image {
 	public void setIdPhoto(String idPhoto) {
 		this.idPhoto = idPhoto;
 	}
-		
+    
 }
