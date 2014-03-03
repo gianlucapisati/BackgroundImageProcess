@@ -96,7 +96,8 @@ public class UploadConsumer extends Thread {
                 File dbfile = new File(Environment.getExternalStorageDirectory()+File.separator+"sw/wsw_db.db");
                 SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
                 mydb.delete("photo_to_send", "id_photo = ?", new String[]{img.getIdPhoto()});
-				
+                
+                final UploadConsumer myself = this;
 				final Image myImg = img;
 				this.cordova.getActivity().runOnUiThread(new Runnable() {
 					public void run() {

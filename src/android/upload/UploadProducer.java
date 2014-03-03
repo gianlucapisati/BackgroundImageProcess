@@ -40,7 +40,7 @@ public class UploadProducer extends Thread {
                 queue.put(img);
             }
             if(str.size()>0){
-                final UploadConsumer myself = this;
+                final UploadProducer myself = this;
                 this.cordova.getActivity().runOnUiThread(new Runnable() {
                     public void run() {
                         myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'upload')");
