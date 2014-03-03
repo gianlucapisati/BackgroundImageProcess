@@ -14,9 +14,11 @@ import android.os.Environment;
 public class UploadProducer extends Thread {
 	
 	BlockingQueue<Image> queue;
+    CordovaWebView webView;
     
-	public UploadProducer(BlockingQueue<Image> queue) {
+	public UploadProducer(BlockingQueue<Image> queue,CordovaWebView webView) {
 		this.queue = queue;
+        this.webView = webView;
 	}
     
 	public void run() {
