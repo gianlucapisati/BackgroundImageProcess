@@ -43,12 +43,6 @@ public class UploadConsumer extends Thread {
 		int serverResponseCode = 0;
 		int maxBufferSize = 1 * 1024 * 1024;
 		
-		final UploadConsumer myself = this;
-        this.cordova.getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'upload')");
-            }
-        });
 		try {
 			while(true) {
 				Image img = this.queue.take();

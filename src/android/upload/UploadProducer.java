@@ -39,6 +39,14 @@ public class UploadProducer extends Thread {
                 img.setIdPhoto(str.get(i).getIdPhoto());
                 queue.put(img);
             }
+            if(str.size()>0){
+                final UploadConsumer myself = this;
+                this.cordova.getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress(100,0,'upload')");
+                    }
+                });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
