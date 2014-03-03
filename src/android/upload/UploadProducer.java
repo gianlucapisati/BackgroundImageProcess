@@ -8,6 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.cordova.download.Image;
 
 import android.database.Cursor;
+import org.apache.cordova.CordovaWebView;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
