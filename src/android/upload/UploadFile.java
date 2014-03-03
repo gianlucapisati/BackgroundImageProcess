@@ -17,7 +17,7 @@ public class UploadFile extends CordovaPlugin {
             BlockingQueue<Image> queue = new LinkedBlockingQueue<Image>();
             UploadConsumer dc = new UploadConsumer(queue, args, this.webView, this.cordova);
             dc.start();
-            UploadProducer dp = new UploadProducer(queue, this.webView);
+            UploadProducer dp = new UploadProducer(queue, this.webView, this.cordova);
             dp.start();
             return true;
         }else{

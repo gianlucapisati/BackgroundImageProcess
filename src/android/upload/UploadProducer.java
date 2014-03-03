@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.apache.cordova.download.Image;
 
+import org.apache.cordova.CordovaInterface;
 import android.database.Cursor;
 import org.apache.cordova.CordovaWebView;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,10 +17,12 @@ public class UploadProducer extends Thread {
 	
 	BlockingQueue<Image> queue;
     CordovaWebView webView;
+    CordovaInterface cordova;
     
-	public UploadProducer(BlockingQueue<Image> queue,CordovaWebView webView) {
+	public UploadProducer(BlockingQueue<Image> queue,CordovaWebView webView, CordovaInterface cordova) {
 		this.queue = queue;
         this.webView = webView;
+        this.cordova = cordova;
 	}
     
 	public void run() {
