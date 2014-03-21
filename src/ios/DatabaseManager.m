@@ -64,7 +64,7 @@ static NSString * _databasePath;
             {
                 NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
                 NSString * uri      = [self stringFromStatement:statement columnIndex:1];
-                Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
+                Document *currentPhoto = [[Document alloc] initWithIdPhoto:id_photo andExtension:@"jpg" andUri:uri];
                 
                 [photos addObject:currentPhoto];
             }
@@ -80,21 +80,22 @@ static NSString * _databasePath;
     return photos;
 }
 
-+(NSArray*)getPhotosForBulkDownload{
-    NSString *query = [NSString stringWithFormat:@"SELECT question_path FROM qualitative_survey_questions UNION SELECT guid FROM pos_logo"];
++(NSArray*)getDocumentsForBulkDownload{
+    NSString *query = [NSString stringWithFormat:@"SELECT question_path, 'jpg' FROM qualitative_survey_questions UNION SELECT guid, 'jpg' FROM pos_logo UNION SELECT path, original_extension FROM documents"];
     sqlite3_stmt *statement;
-    NSMutableArray *photos = [NSMutableArray array];
+    NSMutableArray *documents = [NSMutableArray array];
     
     if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){
         if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil) == SQLITE_OK) {
             
             while (sqlite3_step(statement) == SQLITE_ROW)
             {
-                NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
+                NSString * id_document = [self stringFromStatement:statement columnIndex:0];
+                NSString * extension = [self stringFromStatement:statement columnIndex:1];
                 NSString * uri      = @"";
-                Photo *currentPhoto = [[Photo alloc] initWithIdPhoto:id_photo andUri:uri];
+                Document *currentDocument = [[Document alloc] initWithIdDocument:id_document andExtension:extension andUri:uri];
                 
-                [photos addObject:currentPhoto];
+                [documents addObject:currentDocument];
             }
             sqlite3_finalize(statement);
         }
@@ -105,12 +106,12 @@ static NSString * _databasePath;
         NSLog(@"Error prepare = %s", sqlite3_errmsg(_database));
     }
     
-    return photos;
+    return documents;
 }
 
 
-+(void)deletePhotoWithId:(NSString*)id_photo{
-    NSString *query = [NSString stringWithFormat:@"DELETE FROM photo_to_send WHERE id_photo = %@",id_photo];
++(void)deletePhotoWithId:(NSString*)id_document{
+    NSString *query = [NSString stringWithFormat:@"DELETE FROM photo_to_send WHERE id_photo = %@",id_document];
     sqlite3_stmt *statement;
     
     if (sqlite3_open([_databasePath UTF8String], &_database) == SQLITE_OK){

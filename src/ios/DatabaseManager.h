@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <sqlite3.h>
-#import "Photo.h"
+#import "Document.h"
 
 @interface DatabaseManager : NSObject{
     
@@ -17,6 +17,6 @@
 + (DatabaseManager *)sharedDatabase;
 
 +(NSArray*)getPhotosForBulkUpload;
-+(NSArray*)getPhotosForBulkDownload;
-+(void)deletePhotoWithId:(NSString*)id_photo;
++(NSArray*)getDocumentsForBulkDownload;
++(void)deletePhotoWithId:(NSString*)id_document;
 @end

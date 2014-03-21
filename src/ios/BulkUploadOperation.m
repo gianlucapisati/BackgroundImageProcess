@@ -13,11 +13,11 @@
 
 @implementation BulkUploadOperation
 
--(id)initWithPhoto:(Photo*)p{
+-(id)initWithDocument:(Document*)d{
     self = [super init];
     if (self)
     {
-        self.photo = p;
+        self.Document = d;
         
         _isExecuting = NO;
         _isFinished = NO;
@@ -43,13 +43,13 @@
     [self willChangeValueForKey:@"isExecuting"];
     _isExecuting = YES;
     [self didChangeValueForKey:@"isExecuting"];
-    NSLog(@"id foto %@",self.photo.id_photo);
+    NSLog(@"id foto %@",self.document.id_document);
     
-    NSString *tmp = [self.photo.uri substringFromIndex:16];
+    NSString *tmp = [self.document.uri substringFromIndex:7];
     UIImage* tmpimage = [UIImage imageWithContentsOfFile:tmp];
     NSData *imageData = UIImageJPEGRepresentation(tmpimage , 90);
     
-    NSString *urlString = [NSString stringWithFormat:@"%@services/ps/upload/%@",self.baseURL,self.photo.id_photo];
+    NSString *urlString = [NSString stringWithFormat:@"%@services/ps/upload/%@",self.baseURL,self.document.id_document];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     [request setURL:[NSURL URLWithString:urlString]];
@@ -73,11 +73,11 @@
     NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
     
     if(returnString){
-        [self finish:self.photo.id_photo];
+        [self finish:self.document.id_document];
     }
 }
 
-- (void)finish:(NSString*)id_photo
+- (void)finish:(NSString*)id_document
 {
     [self willChangeValueForKey:@"isExecuting"];
     [self willChangeValueForKey:@"isFinished"];
@@ -85,7 +85,7 @@
     _isExecuting = NO;
     _isFinished = YES;
     
-    [DatabaseManager deletePhotoWithId:id_photo];
+    [DatabaseManager deletePhotoWithId:id_document];
     
     [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'upload')",self.total,self.current]];
     

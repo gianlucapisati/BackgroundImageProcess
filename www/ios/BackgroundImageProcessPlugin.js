@@ -3,7 +3,7 @@ var backgroundimageprocess = {
 		cordova.exec(success, fail, "BackgroundImageProcess", "uploadPhotos",params);
 	},
     downloadPhotos: function(success, fail, params){
-        cordova.exec(success, fail, "BackgroundImageProcess", "downloadPhotos",params);
+        cordova.exec(success, fail, "BackgroundImageProcess", "downloadDocuments",params);
     }
 }
 

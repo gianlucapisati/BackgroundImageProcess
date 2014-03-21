@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Photo.h"
+#import "Document.h"
 
 @interface BulkUploadOperation : NSOperation{
     int _kind;
@@ -16,7 +16,7 @@
     BOOL _isFinished;
 }
 
--(id)initWithPhoto:(Photo*)p;
+-(id)initWithDocument:(Document*)d;
 
 @property (nonatomic, strong) NSString *username;
 @property (nonatomic, strong) NSString *token;
@@ -28,6 +28,6 @@
 @property (readonly) BOOL isExecuting;
 @property (readonly) BOOL isFinished;
 
-@property (strong, nonatomic) Photo * photo;
+@property (strong, nonatomic) Document * document;
 
 @end

@@ -12,11 +12,11 @@
 
 @implementation BulkDownloadOperation
 
--(id)initWithPhoto:(Photo*)p{
+-(id)initWithDocument:(Document*)d{
     self = [super init];
     if (self)
     {
-        self.photo = p;
+        self.document = d;
         
         _isExecuting = NO;
         _isFinished = NO;
@@ -38,24 +38,21 @@
         return;
     }
     
-    
     [self willChangeValueForKey:@"isExecuting"];
     _isExecuting = YES;
     [self didChangeValueForKey:@"isExecuting"];
     
-    
-    
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     
-    NSString* image = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"sw/www/img/%@.jpg",self.photo.id_photo]];
-    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:image];
+    NSString* doc = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"sw/www/img/%@.%@",self.document.id_document,self.document.extension]];
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:doc];
     
     if(fileExists){
         [self finishWithStatus:2];
     }else{
         
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@services/ps/download/%@",self.baseURL,self.photo.id_photo]]];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@services/ps/download/%@",self.baseURL,self.document.id_document]]];
         
         NSString *authCredentials = [NSString stringWithFormat:@"%@:%@", self.username, self.token];
         [request setValue:authCredentials forHTTPHeaderField:@"Authorization"];
@@ -65,7 +62,7 @@
                                                    NSData * data,
                                                    NSError * error) {
                                    if (!error){
-                                       NSString *localFilePath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"sw/www/img/%@.jpg",self.photo.id_photo]];
+                                       NSString *localFilePath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"sw/www/img/%@.%@",self.document.id_document,self.document.extension]];
                                        [data writeToFile:localFilePath atomically:YES];
                                        
                                        [self finishWithStatus:1];

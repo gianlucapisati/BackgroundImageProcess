@@ -21,7 +21,7 @@
 }
 
 - (void)uploadPhotos:(CDVInvokedUrlCommand *)command;
-- (void)downloadPhotos:(CDVInvokedUrlCommand *)command;
+- (void)downloadDocuments:(CDVInvokedUrlCommand *)command;
 #pragma mark - Util_Methods
 - (void) uploadAllFilesWithUsername:(NSString *)username andToken:(NSString*)token andBaseURL:(NSString*)baseURL;
 - (void) downloadAllFilesWithUsername:(NSString *)username andToken:(NSString*)token andBaseURL:(NSString*)baseURL;

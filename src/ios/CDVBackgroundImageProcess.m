@@ -36,7 +36,7 @@
 }
 
 
-- (void)downloadPhotos:(CDVInvokedUrlCommand *)command {
+- (void)downloadDocuments:(CDVInvokedUrlCommand *)command {
     // Retrieve the JavaScript-created date String from the CDVInvokedUrlCommand instance.
     // When we implement the JavaScript caller to this function, we'll see how we'll
     // pass an array (command.arguments), which will contain a single String.
@@ -71,8 +71,8 @@
     _bulkUploadQueue.MaxConcurrentOperationCount = 1;
     int count = 1;
     
-    for(Photo *p in _bulkSendArray){
-        BulkUploadOperation *newOperation = [[BulkUploadOperation alloc] initWithPhoto:p];
+    for(Document *d in _bulkSendArray){
+        BulkUploadOperation *newOperation = [[BulkUploadOperation alloc] initWithDocument:d];
         newOperation.username = username;
         newOperation.token = token;
         newOperation.baseURL = baseURL;
@@ -87,7 +87,7 @@
 
 
 - (void)downloadAllFilesWithUsername:(NSString *) username andToken:(NSString*) token andBaseURL:(NSString*) baseURL{
-    _bulkDownloadArray = [DatabaseManager getPhotosForBulkDownload];
+    _bulkDownloadArray = [DatabaseManager getDocumentsForBulkDownload];
     if([_bulkDownloadArray count]>0){
         [self writeJavascript:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,0,'download')",[_bulkDownloadArray count]]];
     }
@@ -96,8 +96,8 @@
     _bulkDownloadQueue.name = @"bulkQueue";
     _bulkDownloadQueue.MaxConcurrentOperationCount = 1;
     int count = 1;
-    for(Photo *p in _bulkDownloadArray){
-        BulkDownloadOperation *newOperation = [[BulkDownloadOperation alloc] initWithPhoto:p];
+    for(Document *d in _bulkDownloadArray){
+        BulkDownloadOperation *newOperation = [[BulkDownloadOperation alloc] initWithDocument:d];
         newOperation.username = username;
         newOperation.token = token;
         newOperation.baseURL = baseURL;
