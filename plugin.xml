@@ -57,8 +57,8 @@
         <source-file src="src/ios/BulkUploadOperation.m" />
         <header-file src="src/ios/BulkDownloadOperation.h" />
         <source-file src="src/ios/BulkDownloadOperation.m" />
-        <header-file src="src/ios/Photo.h" />
-        <source-file src="src/ios/Photo.m" />
+        <header-file src="src/ios/Document.h" />
+        <source-file src="src/ios/Document.m" />
         <header-file src="src/ios/DatabaseManager.h" />
         <source-file src="src/ios/DatabaseManager.m" />
         <framework src="libsqlite3.dylib" />
