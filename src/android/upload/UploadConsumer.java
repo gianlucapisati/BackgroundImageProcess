@@ -14,6 +14,7 @@ import org.apache.cordova.download.Image;
 import org.json.JSONArray;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Environment;
 
 public class UploadConsumer extends Thread {
@@ -56,11 +57,15 @@ public class UploadConsumer extends Thread {
 				conn.setDoOutput(true);
 				conn.setUseCaches(false);
 				conn.setRequestMethod("POST");
+				conn.setRequestProperty( "Accept-Encoding", "" );
 				conn.setRequestProperty("Connection", "Keep-Alive");
 				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
 				conn.setRequestProperty("Content-Type","multipart/form-data;boundary=" + boundary);
 				conn.setRequestProperty("uploaded_file", filename);
 				conn.setRequestProperty("Authorization", args.getString(0)+":"+args.getString(1));
+				if (Build.VERSION.SDK != null && Build.VERSION.SDK_INT > 13) {
+					conn.setRequestProperty("Connection", "close");
+				}
                 
 				dos = new DataOutputStream(conn.getOutputStream());
 				dos.writeBytes(twoHyphens + boundary + lineEnd);
@@ -93,15 +98,16 @@ public class UploadConsumer extends Thread {
 				dos.flush();
 				dos.close();
                 
-                File dbfile = new File(Environment.getExternalStorageDirectory()+File.separator+"sw/wsw_db.db");
-                SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
-                mydb.delete("photo_to_send", "id_photo = ?", new String[]{img.getIdPhoto()});
                 
                 final UploadConsumer myself = this;
 				final Image myImg = img;
 				this.cordova.getActivity().runOnUiThread(new Runnable() {
 					public void run() {
 						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myImg.getTotal()+","+myImg.getCount()+",'upload')");
+						if(myImg.getTotal() == myImg.getCount()){
+							myself.webView.sendJavascript("javascript:localStorage.setItem('photosToSend','[]');");
+
+						}
 					}
 				});
 			}

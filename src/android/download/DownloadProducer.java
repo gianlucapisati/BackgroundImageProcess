@@ -1,24 +1,20 @@
 package org.apache.cordova.download;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.os.Environment;
 
 
 public class DownloadProducer extends Thread {
 	
-	BlockingQueue<Image> queue;
+	BlockingQueue<Document> queue;
     
-	public DownloadProducer(BlockingQueue<Image> queue) {
+	public DownloadProducer(BlockingQueue<Document> queue) {
 		this.queue = queue;
 	}
     
@@ -26,18 +22,21 @@ public class DownloadProducer extends Thread {
         try {
             File dbfile = new File(Environment.getExternalStorageDirectory()+File.separator+"sw/wsw_db.db");
             SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
-            Cursor cursor = mydb.rawQuery("SELECT question_path FROM qualitative_survey_questions UNION SELECT guid FROM pos_logo", null);
-            List<String> str = new ArrayList<String>();
+            Cursor cursor = mydb.rawQuery("SELECT question_path, 'jpg' FROM qualitative_survey_questions UNION SELECT guid, 'jpg' FROM pos_logo UNION SELECT path, original_extension FROM documents UNION SELECT photo_hash, 'jpg' FROM end_of_visit_photos", null);
+            List<String> paths = new ArrayList<String>();
+            List<String> extensions = new ArrayList<String>();
             while(cursor.moveToNext()) {
-                str.add(cursor.getString(0));
+            	paths.add(cursor.getString(0));
+            	extensions.add(cursor.getString(1));
             }
             cursor.close();
-            for(int i=0; i<str.size();i++) {
-                Image img = new Image();
-                img.setTotal(str.size());
-                img.setCount(i+1);
-                img.setPath(str.get(i));
-                queue.put(img);
+            for(int i=0; i<paths.size();i++) {
+            	Document document = new Document();
+            	document.setTotal(paths.size());
+            	document.setCount(i+1);
+            	document.setPath(paths.get(i));
+            	document.setExtension(extensions.get(i));
+                queue.put(document);
             }
         } catch (Exception e) {
             e.printStackTrace();

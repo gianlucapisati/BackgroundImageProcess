@@ -20,12 +20,12 @@ import android.os.Environment;
 
 public class DownloadConsumer extends Thread {
     
-	BlockingQueue<Image> queue;
+	BlockingQueue<Document> queue;
 	JSONArray args;
 	CordovaInterface cordova;
 	CordovaWebView webView;
     
-	public DownloadConsumer(BlockingQueue<Image> queue, JSONArray args, CordovaWebView webView,CordovaInterface cordova) {
+	public DownloadConsumer(BlockingQueue<Document> queue, JSONArray args, CordovaWebView webView,CordovaInterface cordova) {
 		this.queue = queue;
 		this.args = args;
 		this.webView = webView;
@@ -44,10 +44,10 @@ public class DownloadConsumer extends Thread {
 	        httpClient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
             
 			while(true) {
-				Image img = this.queue.take();
-				File file = new File(Environment.getExternalStorageDirectory()+"/sw/www/img/"+img.getPath()+".jpg");
+				Document document = this.queue.take();
+				File file = new File(Environment.getExternalStorageDirectory()+"/sw/www/img/"+document.getPath()+"."+document.getExtension());
 				if (!file.exists()) {
-					String url = this.args.getString(2)+"services/ps/download/"+img.getPath();
+					String url = this.args.getString(2)+"services/ps/download/"+document.getPath();
 					HttpGet httpGet = new HttpGet(url);
 					httpGet.setHeader("Authorization", args.getString(0)+":"+args.getString(1));
 			        HttpResponse response = httpClient.execute(httpGet);
@@ -62,10 +62,10 @@ public class DownloadConsumer extends Thread {
 			        is.close();
 				}
 				
-				final Image myImg = img;
+				final Document myDoc = document;
 				this.cordova.getActivity().runOnUiThread(new Runnable() {
 					public void run() {
-						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myImg.getTotal()+","+myImg.getCount()+",'download')");
+						myself.webView.sendJavascript("javascript:SW.Renderer.handleProgress("+myDoc.getTotal()+","+myDoc.getCount()+",'download')");
 					}
 				});
 			}

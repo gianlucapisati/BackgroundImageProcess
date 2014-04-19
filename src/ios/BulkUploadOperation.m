@@ -21,6 +21,7 @@
         
         _isExecuting = NO;
         _isFinished = NO;
+        _bulkUploadOperations = NO;
     }
     
     return self;
@@ -33,19 +34,23 @@
 
 - (void)start {
     
-    if (![NSThread isMainThread])
-    {
-        [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
-        return;
-    }
+//    if (![NSThread isMainThread])
+//    {
+//        [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
+//        return;
+//    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+
+        [self willChangeValueForKey:@"isExecuting"];
+        _isExecuting = YES;
+        [self didChangeValueForKey:@"isExecuting"];
+        
+    });
     
-    
-    [self willChangeValueForKey:@"isExecuting"];
-    _isExecuting = YES;
-    [self didChangeValueForKey:@"isExecuting"];
     NSLog(@"id foto %@",self.document.id_document);
     
-    NSString *tmp = [self.document.uri substringFromIndex:7];
+    NSString *tmp = [self.document.uri stringByReplacingOccurrencesOfString:@"file://localhost" withString:@""];
     UIImage* tmpimage = [UIImage imageWithContentsOfFile:tmp];
     NSData *imageData = UIImageJPEGRepresentation(tmpimage , 90);
     
@@ -79,18 +84,25 @@
 
 - (void)finish:(NSString*)id_document
 {
-    [self willChangeValueForKey:@"isExecuting"];
-    [self willChangeValueForKey:@"isFinished"];
     
-    _isExecuting = NO;
-    _isFinished = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self willChangeValueForKey:@"isExecuting"];
+        [self willChangeValueForKey:@"isFinished"];
+        [self willChangeValueForKey:@"bulkUploadOperations"];
+        
+        _isExecuting = NO;
+        _isFinished = YES;
+        _bulkUploadOperations = YES;
+        
+        //[DatabaseManager deletePhotoWithId:id_document];
+        
+        [self.webview writeJavascript:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'upload')",self.total,self.current]];
+        
+        [self didChangeValueForKey:@"isExecuting"];
+        [self didChangeValueForKey:@"isFinished"];
+        [self didChangeValueForKey:@"bulkUploadOperations"];
+    });
     
-    [DatabaseManager deletePhotoWithId:id_document];
-    
-    [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'upload')",self.total,self.current]];
-    
-    [self didChangeValueForKey:@"isExecuting"];
-    [self didChangeValueForKey:@"isFinished"];
 }
 
 @end

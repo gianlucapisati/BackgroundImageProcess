@@ -20,6 +20,7 @@
         
         _isExecuting = NO;
         _isFinished = NO;
+        _bulkDownloadOperations = NO;
     }
     
     return self;
@@ -32,15 +33,17 @@
 
 - (void)start {
     
-    if (![NSThread isMainThread])
-    {
-        [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
-        return;
-    }
+//    if (![NSThread isMainThread])
+//    {
+//        [self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
+//        return;
+//    }
     
-    [self willChangeValueForKey:@"isExecuting"];
-    _isExecuting = YES;
-    [self didChangeValueForKey:@"isExecuting"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self willChangeValueForKey:@"isExecuting"];
+        _isExecuting = YES;
+        [self didChangeValueForKey:@"isExecuting"];
+    });
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -77,21 +80,26 @@
 
 - (void)finishWithStatus:(int)status
 {
-    [self willChangeValueForKey:@"isExecuting"];
-    [self willChangeValueForKey:@"isFinished"];
-    
-    _isExecuting = NO;
-    _isFinished = YES;
-    
-    if(status == 1 || status == 2){
-        [self.webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'download')",self.total,self.current]];
-    }
-    else if(status == 0)
-        [self.webview stringByEvaluatingJavaScriptFromString:@"console.log('download error')"];
-    
-    
-    [self didChangeValueForKey:@"isExecuting"];
-    [self didChangeValueForKey:@"isFinished"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self willChangeValueForKey:@"isExecuting"];
+        [self willChangeValueForKey:@"isFinished"];
+        [self willChangeValueForKey:@"bulkDownloadOperations"];
+        
+        _bulkDownloadOperations = YES;
+        _isExecuting = NO;
+        _isFinished = YES;
+        
+        if(status == 1 || status == 2){
+            [self.webview writeJavascript:[NSString stringWithFormat:@"SW.Renderer.handleProgress(%d,%d,'download')",self.total,self.current]];
+        }
+        else if(status == 0)
+            [self.webview writeJavascript:@"console.log('download error')"];
+        
+        
+        [self didChangeValueForKey:@"isExecuting"];
+        [self didChangeValueForKey:@"isFinished"];
+        [self didChangeValueForKey:@"bulkDownloadOperations"];
+    });
 }
 
 @end

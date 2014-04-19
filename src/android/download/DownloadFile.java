@@ -13,7 +13,7 @@ public class DownloadFile extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		if ("download".equals(action)) {
-			BlockingQueue<Image> queue = new LinkedBlockingQueue<Image>();
+			BlockingQueue<Document> queue = new LinkedBlockingQueue<Document>();
 			DownloadConsumer dc = new DownloadConsumer(queue, args, this.webView, this.cordova);
 			dc.start();
 			DownloadProducer dp = new DownloadProducer(queue);

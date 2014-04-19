@@ -13,17 +13,17 @@
 
 
 @interface CDVBackgroundImageProcess : CDVPlugin{
-    NSArray *_bulkSendArray;
     NSArray *_bulkDownloadArray;
-    NSOperationQueue *_bulkUploadQueue;
-    NSOperationQueue *_bulkDownloadQueue;
     NSMutableArray *_operationArray;
 }
+
+@property (nonatomic, retain) NSOperationQueue *bulkUploadQueue;
+@property (nonatomic, retain) NSOperationQueue *bulkDownloadQueue;
 
 - (void)uploadPhotos:(CDVInvokedUrlCommand *)command;
 - (void)downloadDocuments:(CDVInvokedUrlCommand *)command;
 #pragma mark - Util_Methods
-- (void) uploadAllFilesWithUsername:(NSString *)username andToken:(NSString*)token andBaseURL:(NSString*)baseURL;
+- (void)uploadAllFilesWithUsername:(NSString *) username andToken:(NSString*) token andBaseURL:(NSString*) baseURL andPhotosTosend:(NSString*)photosToSend;
 - (void) downloadAllFilesWithUsername:(NSString *)username andToken:(NSString*)token andBaseURL:(NSString*)baseURL;
 
 

@@ -64,7 +64,7 @@ static NSString * _databasePath;
             {
                 NSString * id_photo = [self stringFromStatement:statement columnIndex:0];
                 NSString * uri      = [self stringFromStatement:statement columnIndex:1];
-                Document *currentPhoto = [[Document alloc] initWithIdPhoto:id_photo andExtension:@"jpg" andUri:uri];
+                Document *currentPhoto = [[Document alloc] initWithIdDocument:id_photo andExtension:@"jpg" andUri:uri];
                 
                 [photos addObject:currentPhoto];
             }
@@ -81,7 +81,7 @@ static NSString * _databasePath;
 }
 
 +(NSArray*)getDocumentsForBulkDownload{
-    NSString *query = [NSString stringWithFormat:@"SELECT question_path, 'jpg' FROM qualitative_survey_questions UNION SELECT guid, 'jpg' FROM pos_logo UNION SELECT path, original_extension FROM documents"];
+    NSString *query = [NSString stringWithFormat:@"SELECT question_path, 'jpg' FROM qualitative_survey_questions UNION SELECT guid, 'jpg' FROM pos_logo UNION SELECT path, original_extension FROM documents UNION SELECT photo_hash, 'jpg' FROM end_of_visit_photos"];
     sqlite3_stmt *statement;
     NSMutableArray *documents = [NSMutableArray array];
     
